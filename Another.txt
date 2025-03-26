@@ -1,0 +1,33 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#fff5f5', 'edgeLabelBackground':'#ffffff'}}}%%
+flowchart TD
+    A[Python API\n(LibCarla Bindings)] -->|Vehicle.cpp| B[RPC Serialization\nVehicleControl.h]
+    B -->|Client.cpp| C[RPC Server\nCarlaServer.cpp]
+    C -->|FVehicleControl| D[Unreal Actor\nCarlaWheeledVehicle.cpp]
+    D -->|VehicleMovementComponent.h| E[Physics Component\nVehicleMovementComponent.cpp]
+    E -->|Chaos Interface| F[Unreal Physics\nChaosVehicleManager.cpp]
+
+    subgraph "PythonAPI/carla/source/libcarla"
+        A -->|"Vehicle::ApplyControl()\n(Lines 197-205)"| B
+    end
+
+    subgraph "LibCarla/source/carla"
+        B -->|"rpc/VehicleControl.h\n(Struct Definition)"| C
+        C -->|"client/Client.cpp\n(ApplyControlToVehicle())"| D
+    end
+
+    subgraph "Unreal/CarlaUE4/Plugins/Carla/Source/Carla"
+        D -->|"Vehicle/CarlaWheeledVehicle.cpp\n(ApplyVehicleControl())"| E
+        E -->|"Vehicle/VehicleMovementComponent.{h,cpp}"| F
+    end
+
+    subgraph "Unreal/Engine/Source/Runtime/ChaosVehicles"
+        F -->|"Private/ChaosVehicleSimulation.cpp\n(Physics Implementation)"| G[Vehicle Motion]
+    end
+
+    style A fill:#fff0f6,stroke:#333
+    style B fill:#f0f4ff,stroke:#333
+    style C fill:#fff0f6,stroke:#333
+    style D fill:#f0fff4,stroke:#333
+    style E fill:#fff9f0,stroke:#333
+    style F fill:#f8f0ff,stroke:#333
+    style G fill:#e6fcf5,stroke:#333
