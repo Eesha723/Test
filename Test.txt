@@ -1,0 +1,33 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffd8d8', 'edgeLabelBackground':'#ffffff'}}}%%
+flowchart TD
+    A[Python API] -->|vehicle.apply_control()| B[RPC Serialization]
+    B -->|LibCarla::VehicleControl| C[RPC Server]
+    C -->|JSON→FVehicleControl| D[Unreal Actor]
+    D -->|ApplyVehicleControl()| E[Vehicle Movement Component]
+    E -->|ChaosVehicleManager| F[Physics Engine]
+
+    subgraph Python Layer
+        A -->|throttle:0.75<br>steer:0.3<br>gear:1| B
+    end
+
+    subgraph LibCarla/RPC
+        B -->|carla::rpc::VehicleControl| C
+        C -->|"ProcessControlFromJson()<br>(CarlaServer.cpp#L543)"| D
+    end
+
+    subgraph Unreal Layer
+        D -->|"ACarlaWheeledVehicle::<br>ApplyVehicleControl()"| E
+        E -->|"UWheeledVehicleMovementComponent4W::<br>SetThrottleInput()/UpdateState()"| F
+    end
+
+    subgraph Physics
+        F -->|"Chaos::FSimpleVehicleSimulator<br>→ Wheel Torques"| G[Vehicle Motion]
+    end
+
+    style A fill:#e7f5ff,stroke:#333
+    style B fill:#ebfbee,stroke:#333
+    style C fill:#fff4e6,stroke:#333
+    style D fill:#fff0f6,stroke:#333
+    style E fill:#f3f0ff,stroke:#333
+    style F fill:#e6fcf5,stroke:#333
+    style G fill:#d0ebff,stroke:#333
